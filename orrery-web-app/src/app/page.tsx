@@ -13,14 +13,14 @@ import AsteroidHazardEvaluation from '@/components/AsteroidHazardEvaluation'
 import DidYouKnow from '@/components/Didyouknow'
 
 const celestialBodies = {
-  sun: { 
-    name: "Sun", 
-    radius: 2, 
-    color: "#FDB813", 
-    type: "star", 
-    description: "The Sun is the star at the center of our Solar System.", 
-    orbitRadius: 0, 
-    orbitPeriod: Infinity 
+  sun: {
+    name: "Sun",
+    radius: 2,
+    color: "#FDB813",
+    type: "star",
+    description: "The Sun is the star at the center of our Solar System.",
+    orbitRadius: 0,
+    orbitPeriod: Infinity
   },
   planets: [
     { name: "Earth", eccentricity: 0.01671123, sma: 1.00000261, inclination: 0.00005, raan: 0, argPerihelion: 1.792, orbitRadius: 8, color: "#0077BE", orbitPeriod: 365.25, type: "planet", description: "Earth is the only known planet to support life and has one natural satellite, the Moon." },
@@ -45,6 +45,22 @@ interface CelestialBodyProps {
   setSelectedBody: (body: CelestialBodyProps['body'] | null) => void
 }
 
+interface OrbitingBodyProps {
+  body: {
+    name: string,
+    radius: number,
+    orbitRadius?: number,
+    color: string,
+    orbitPeriod?: number,
+    type: string,
+    description: string,
+    tail?: boolean,
+  },
+  time: number,
+  setSelectedBody: (body: OrbitingBodyProps['body'] | null) => void,
+  sma: number, e: number, inclination: number, raan: number, argPerihelion: number, orbitalPeriod: number, color: string
+}
+
 function CelestialBody({ body, time, setSelectedBody }: CelestialBodyProps) {
   const ref = useRef<THREE.Group>(null)
   const { radius, orbitRadius, color, orbitPeriod, tail } = body
@@ -55,16 +71,17 @@ function CelestialBody({ body, time, setSelectedBody }: CelestialBodyProps) {
     0,
     Math.sin(angle) * (orbitRadius ?? 0),
   ];
-  
+
+
   useFrame(() => {
     if (ref.current) {
       ref.current.position.set(...position)
-    } 
+    }
   })
 
   return (
     <group ref={ref}>
-      <mesh 
+      <mesh
         onClick={() => setSelectedBody(body)}
         onPointerOver={() => ref.current?.scale.set(1.1, 1.1, 1.1)} // Scale up on hover
         onPointerOut={() => ref.current?.scale.set(1, 1, 1)} // Scale back on hover out
@@ -155,11 +172,23 @@ function OrbitingBody({ sma, e, inclination, raan, argPerihelion, orbitalPeriod,
     });
 
     return (
+      <group>
       <mesh ref={meshRef} position={[0, 0, 0]}>
         <sphereGeometry args={[0.5, 32, 32]} />
         <meshStandardMaterial color={color} />
       </mesh>
-    );
+      <Html>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="text-white text-xs bg-black bg-opacity-50 px-1 rounded"
+        >
+          {body.name}
+        </motion.div>
+      </Html>
+    </group>
+  );
 }
 
 function Orbit({ a, e, i, omega, Omega }: { a: number, e: number, i: number, omega: number, Omega: number }) {
@@ -168,16 +197,16 @@ function Orbit({ a, e, i, omega, Omega }: { a: number, e: number, i: number, ome
 
   for (let nu = 0; nu <= 2 * Math.PI; nu += 0.01) {
     const r = (a * (1 - e * e)) / (1 + e * Math.cos(nu));
-    
+
     const x = r * (Math.cos(nu + omega) * Math.cos(Omega) - Math.sin(nu + omega) * Math.cos(i) * Math.sin(Omega));
     const y = r * (Math.cos(nu + omega) * Math.sin(Omega) + Math.sin(nu + omega) * Math.cos(i) * Math.cos(Omega));
     const z = r * Math.sin(nu + omega) * Math.sin(i);
-    
+
     points.push(new THREE.Vector3(x, y, z));
   }
-  
+
   const geometry = new THREE.BufferGeometry().setFromPoints(points);
-  
+
   return (
     <line>
       <primitive object={geometry} />
@@ -287,6 +316,11 @@ function InteractiveOrrery() {
 export default function SpaceEducationOrrery() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 15fe0d758367ec1bca4a4922f36fdcdd126ac108
       <main className="container mx-auto px-4 py-8">
         <section className="mb-12">
           <h2 className="text-3xl font-bold mb-4 text-yellow-300">Interactive Solar System</h2>
