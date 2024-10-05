@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-800 py-6">
+    <div className="bg-gray-800 py-6">
       <div className="container mx-auto px-4 text-center text-yellow-300">
         <p className="font-bold">&copy; 2024 Space Education Orrery. All rights reserved.</p>
         <p className="mt-2">
@@ -17,6 +17,6 @@ export default function Footer() {
           </p>
         </div>
       </div>
-    </footer>
+    </div>
   );
 }
