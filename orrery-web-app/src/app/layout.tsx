@@ -1,12 +1,8 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-
-// Purpose: Root layout component
-// - Wraps all pages in the application
-// - Includes common elements like Navbar and Footer
-// - Sets up any providers (e.g., state management, themes)
-// - Handles app-wide layouts and styles
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -31,11 +27,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <Navbar />
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
       </body>
+      <Footer />
     </html>
   );
 }
