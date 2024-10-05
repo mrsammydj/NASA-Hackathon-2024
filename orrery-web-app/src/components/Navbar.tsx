@@ -8,7 +8,7 @@ export default function Navbar() {
         <h1 className="text-4xl font-extrabold text-yellow-400">Space Education Orrery</h1>
         <nav className="flex space-x-4">
           <Link href="/">
-            <a className="text-yellow-300 font-bold">Home</a>
+            <Button variant="link" className="text-yellow-300 font-bold">Home</Button>
           </Link>
 
           <Link href={'/about'}>
