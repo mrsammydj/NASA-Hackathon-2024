@@ -116,7 +116,7 @@ export default function Footer() {
           <div className="space-y-6">
             <h3 className="text-3xl font-extrabold flex items-center text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 animate-pulse">
               <Rocket className="mr-3 h-10 w-10" />
-              Space Orrery
+              Astral Odyssey
             </h3>
             <p className="text-lg text-gray-300 font-medium leading-relaxed">
               Embark on a cosmic journey through our interactive 3D orrery. 

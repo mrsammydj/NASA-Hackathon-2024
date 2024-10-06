@@ -53,7 +53,7 @@ export default function Navbar() {
             <Rocket className="h-10 w-10 text-purple-500" />
           </motion.div>
           <span className="text-3xl font-extrabold text-white group-hover:text-purple-400 transition-colors">
-            Space Orrery
+          Astral Odyssey
           </span>
         </Link>
 
