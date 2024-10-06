@@ -44,7 +44,7 @@ export default function Navbar() {
       animate={{ y: 0 }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
     >
-      <div className="container mx-auto flex justify-between items-center">
+      <div className="container mx-auto flex justify-between items-center mb-8">
         <Link href="/" className="flex items-center space-x-2 group">
           <motion.div
             whileHover={{ rotate: 360 }}

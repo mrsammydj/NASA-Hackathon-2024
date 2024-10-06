@@ -20,6 +20,7 @@ import saturnModel from '@/assets/models/saturnModel.glb'
 import uranusModel from '@/assets/models/uranusModel.glb'
 import neptuneModel from '@/assets/models/neptuneModel.glb'
 import SolarSystemEducation from '@/components/SolarSystemEducation'
+import SpaceDebrisCleanup from '@/components/SpaceDebrisCleanup'
 
 const celestialBodies = {
   sun: { 
@@ -675,12 +676,15 @@ export default function SpaceEducationOrrery() {
           <InteractiveOrrery />
         </section>
         <section className="mb-12">
-          <h2 className="text-3xl font-bold mb-4 text-yellow-300">Asteroid Hazard Evaluation</h2>
           <AsteroidHazardEvaluation />
         </section>
           
         <section className="mb-12 rounded-lg">
           <SolarSystemEducation />
+        </section>
+         
+        <section className="mb-12 rounded-lg">
+          <SpaceDebrisCleanup />
         </section>
 
         <section className="mb-12">
