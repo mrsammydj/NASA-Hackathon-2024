@@ -20,7 +20,6 @@ import saturnModel from '@/assets/models/saturnModel.glb'
 import uranusModel from '@/assets/models/uranusModel.glb'
 import neptuneModel from '@/assets/models/neptuneModel.glb'
 
-
 const celestialBodies = {
   sun: { 
     name: "Sun", 
@@ -323,7 +322,6 @@ function CelestialBody({ body, time, setSelectedBody, paused, speed }: Celestial
           if (child.material instanceof THREE.MeshStandardMaterial) {
             child.material.metalness = isSun ? 0.1 : 0.5;
             child.material.roughness = isSun ? 0.2 : 0.7;
-
             if (isSun) {
               child.material.emissive = new THREE.Color(color);
               child.material.emissiveIntensity = 1;
@@ -401,25 +399,21 @@ function trueAnomalyFromEccentricAnomaly(E: number, e: number) {
 
 function Orbit({ a, e, i, omega, Omega }: { a: number, e: number, i: number, omega: number, Omega: number }) {
   const points = [];
-  a = a * 5;
-  
+  a = a * 5; // Semi-major axis adjustment
+
   for (let nu = 0; nu <= 2 * Math.PI; nu += 0.01) {
     const r = (a * (1 - e * e)) / (1 + e * Math.cos(nu));
 
-    // Calculate position in orbital plane
+    // Apply the series of transformations to plot the orbit
     const xOrbital = r * Math.cos(nu);
     const yOrbital = r * Math.sin(nu);
 
-    // Apply rotations in the correct order
-    // First, rotate around z-axis by -Omega (argument of periapsis)
     const x1 = xOrbital * Math.cos(-Omega) - yOrbital * Math.sin(-Omega);
     const y1 = xOrbital * Math.sin(-Omega) + yOrbital * Math.cos(-Omega);
 
-    // Then, rotate around x-axis by -i (inclination)
     const y2 = y1 * Math.cos(-i);
     const z2 = y1 * Math.sin(-i);
 
-    // Finally, rotate around z-axis by -omega (RAAN)
     const x = x1 * Math.cos(-omega) - y2 * Math.sin(-omega);
     const y = x1 * Math.sin(-omega) + y2 * Math.cos(-omega);
     const z = z2;
@@ -436,6 +430,7 @@ function Orbit({ a, e, i, omega, Omega }: { a: number, e: number, i: number, ome
     </line>
   );
 }
+
 
 function Player({ isCameraManual, orbitControlsRef } : { isCameraManual: boolean, orbitControlsRef: any }) {
   const cameraRef : Ref<any> = useRef()
