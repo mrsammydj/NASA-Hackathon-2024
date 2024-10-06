@@ -19,6 +19,8 @@ import jupiterModel from '@/assets/models/jupiterModel.glb'
 import saturnModel from '@/assets/models/saturnModel.glb'
 import uranusModel from '@/assets/models/uranusModel.glb'
 import neptuneModel from '@/assets/models/neptuneModel.glb'
+import SolarSystemEducation from '@/components/SolarSystemEducation'
+import SpaceDebrisCleanup from '@/components/SpaceDebrisCleanup'
 import cometsData from './newdata.json'
 
 
@@ -254,10 +256,11 @@ interface CelestialBodyProps {
   },
   time: number,
   setSelectedBody: (body: CelestialBodyProps['body'] | null) => void,
-  paused: boolean
+  paused: boolean,
+  speed: number,
 }
 
-function CelestialBody({ body, time, setSelectedBody, paused }: CelestialBodyProps) {
+function CelestialBody({ body, time, setSelectedBody, paused, speed }: CelestialBodyProps) {
   const ref = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
   const { sma, eccentricity, inclination, raan, argPerihelion, orbitPeriod, model, scale, name, rotationPeriod, color, type, epoch } = body;
@@ -265,51 +268,52 @@ function CelestialBody({ body, time, setSelectedBody, paused }: CelestialBodyPro
   const isSun = name === "Sun";
 
 
-  const a = (sma || 1) * 5 * (type == "comet" ? 3.5 : 1);
-  const ecc = eccentricity || 0;
-  const inc = (inclination || 0) * Math.PI / 180;
-  const RAAN = (raan || 0) * Math.PI / 180;
-  const argPeriapsis = (argPerihelion || 0) * Math.PI / 180;
-  const orbitalPeriod = orbitPeriod || 365.25;
+  const a = (sma || 1) * 5 * (type == "comet" ? 3.5 : 1); // Semi-major axis
+  const ecc = eccentricity || 0; // Eccentricity
+  const inc = (inclination || 0) * Math.PI / 180; // Inclination
+  const RAAN = (raan || 0) * Math.PI / 180; // Right Ascension of Ascending Node
+  const argPeriapsis = (argPerihelion || 0) * Math.PI / 180; // Argument of Periapsis
+  const orbitalPeriod = orbitPeriod || 365.25; // Orbital Period
 
   const meanMotion = (2 * Math.PI) / orbitalPeriod;
   const rotationSpeed = rotationPeriod ? (2 * Math.PI) / (rotationPeriod * 24 * 60 * 60) : 0.01;
-
-  const calculateTimeSinceEpoch = (time: number, epoch: number) => {
-    const daysSinceEpoch = (time - epoch) / (1000 * 60 * 60 * 24)
-    return daysSinceEpoch;
-  }
 
   useFrame(() => {
     if (paused) return;
 
     if (!isSun && ref.current) {
-      const daysSinceEpoch = calculateTimeSinceEpoch(time, epoch ?? +new Date('December 9, 2014'))
+      // Use time and speed to calculate mean anomaly
+      const M = meanMotion * time * speed; // Time evolution according to speed
+      const E = eccentricAnomalyFromMeanAnomaly(M, ecc); // Eccentric anomaly
+      const trueAnomaly = trueAnomalyFromEccentricAnomaly(E, ecc); // True anomaly
 
-      const M = meanMotion * time * 20;
-      const E = eccentricAnomalyFromMeanAnomaly(M, ecc);
-      const trueAnomaly = trueAnomalyFromEccentricAnomaly(E, ecc);
-
+      // Radius calculation from eccentric anomaly
       const r = a * (1 - ecc * Math.cos(E));
 
+      // Position in the orbital plane
       const xOrbital = r * Math.cos(trueAnomaly);
       const yOrbital = r * Math.sin(trueAnomaly);
 
+      // Apply rotation for argument of periapsis
       const x1 = xOrbital * Math.cos(-argPeriapsis) - yOrbital * Math.sin(-argPeriapsis);
       const y1 = xOrbital * Math.sin(-argPeriapsis) + yOrbital * Math.cos(-argPeriapsis);
 
+      // Apply inclination rotation
       const y2 = y1 * Math.cos(-inc);
       const z2 = y1 * Math.sin(-inc);
 
+      // Apply rotation for RAAN
       const x = x1 * Math.cos(-RAAN) - y2 * Math.sin(-RAAN);
       const y = x1 * Math.sin(-RAAN) + y2 * Math.cos(-RAAN);
       const z = z2;
 
+      // Set the calculated position
       ref.current.position.set(x, y, z);
     }
 
+    // Apply rotation to the planet itself
     if (ref.current) {
-      ref.current.rotation.y += rotationSpeed * 50;
+      ref.current.rotation.y += rotationSpeed * speed * 50; // Rotate the planet based on speed
     }
   });
 
@@ -327,15 +331,15 @@ function CelestialBody({ body, time, setSelectedBody, paused }: CelestialBodyPro
 
   const renderBody = () => {
     if (model) {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
       const { scene } = useGLTF(model);
+
 
       scene.traverse((child) => {
         if (child instanceof THREE.Mesh) {
           if (child.material instanceof THREE.MeshStandardMaterial) {
             child.material.metalness = isSun ? 0.1 : 0.5;
             child.material.roughness = isSun ? 0.2 : 0.7;
-
+            
             if (isSun) {
               child.material.emissive = new THREE.Color(color);
               child.material.emissiveIntensity = 1;
@@ -348,7 +352,7 @@ function CelestialBody({ body, time, setSelectedBody, paused }: CelestialBodyPro
 
       return <primitive object={scene} />;
     } else {
-      // CHANGE: Adjust the sphere size and material for better visibility
+      // Adjust the sphere size and material for better visibility
       const sphereRadius = type === "planet" ? 0.5 : 0.2; // Smaller radius for non-planets
       return (
         <mesh>
@@ -392,7 +396,7 @@ function CelestialBody({ body, time, setSelectedBody, paused }: CelestialBodyPro
         </motion.div>
       </Html>
     </group>
-  )
+  );
 }
 
 // Helper functions for Kepler's laws (eccentric anomaly, true anomaly conversions)
@@ -419,20 +423,16 @@ function Orbit({ a, e, i, omega, Omega, type }: { a: number, e: number, i: numbe
   for (let nu = 0; nu <= 2 * Math.PI; nu += 0.01) {
     const r = (a * (1 - e * e)) / (1 + e * Math.cos(nu));
 
-    // Calculate position in orbital plane
+    // Apply the series of transformations to plot the orbit
     const xOrbital = r * Math.cos(nu);
     const yOrbital = r * Math.sin(nu);
 
-    // Apply rotations in the correct order
-    // First, rotate around z-axis by -Omega (argument of periapsis)
     const x1 = xOrbital * Math.cos(-Omega) - yOrbital * Math.sin(-Omega);
     const y1 = xOrbital * Math.sin(-Omega) + yOrbital * Math.cos(-Omega);
 
-    // Then, rotate around x-axis by -i (inclination)
     const y2 = y1 * Math.cos(-i);
     const z2 = y1 * Math.sin(-i);
 
-    // Finally, rotate around z-axis by -omega (RAAN)
     const x = x1 * Math.cos(-omega) - y2 * Math.sin(-omega);
     const y = x1 * Math.sin(-omega) + y2 * Math.cos(-omega);
     const z = z2;
@@ -449,6 +449,7 @@ function Orbit({ a, e, i, omega, Omega, type }: { a: number, e: number, i: numbe
     </line>
   );
 }
+
 
 function Player({ isCameraManual, orbitControlsRef }: { isCameraManual: boolean, orbitControlsRef: any }) {
   const cameraRef: Ref<any> = useRef()
@@ -559,29 +560,27 @@ function Player({ isCameraManual, orbitControlsRef }: { isCameraManual: boolean,
 }
 
 // Updated Scene function
-function Scene({ time, setSelectedBody, paused, isSpaceshipMode, orbitalRef, orbitsVisible, starVisible }:
-  { time: number, setSelectedBody: (body: CelestialBodyProps['body'] | null) => void, paused: boolean, isSpaceshipMode: boolean, orbitalRef: Ref<any>, orbitsVisible: boolean, 
+function Scene({ time, setSelectedBody, paused, speed, isSpaceshipMode, orbitalRef, orbitsVisible, starVisible }:
+  { time: number, setSelectedBody: (body: CelestialBodyProps['body'] | null) => void, paused: boolean, speed: number, isSpaceshipMode: boolean, orbitalRef: Ref<any>, orbitsVisible: boolean, 
     starVisible: boolean
    }) {
 
-  const [cameraManual, setCameraManual] = useState(false)
+  const [cameraManual, setCameraManual] = useState(false);
+  
   useEffect(() => {
-    setCameraManual(isSpaceshipMode)
-  }, [isSpaceshipMode])
+    setCameraManual(isSpaceshipMode);
+  }, [isSpaceshipMode]);
 
   return (
     <>
-      {/* CHANGE: Increased ambient light intensity for overall brightness */}
       <ambientLight intensity={0.8} />
-      {/* CHANGE: Increased point light intensity at the center (sun) */}
       <pointLight position={[0, 0, 0]} intensity={3} />
-      {/* CHANGE: Added two directional lights for better illumination of 3D models */}
       <directionalLight position={[5, 5, 5]} intensity={1} />
       <directionalLight position={[-5, -5, -5]} intensity={0.5} />
       {starVisible ? <Stars radius={200} depth={60} count={7000} factor={5} saturation={0} fade speed={2} /> : null}
 
       {/* Sun */}
-      <CelestialBody body={celestialBodies.sun} time={time} setSelectedBody={setSelectedBody} paused={paused} />
+      <CelestialBody body={celestialBodies.sun} time={time} setSelectedBody={setSelectedBody} paused={paused} speed={speed} />
 
       {/* Planets */}
       {celestialBodies.planets.map((planet) => (
@@ -612,11 +611,11 @@ function Scene({ time, setSelectedBody, paused, isSpaceshipMode, orbitalRef, orb
         </React.Fragment>
       ))}
 
-
       <Player isCameraManual={cameraManual} orbitControlsRef={orbitalRef} />
     </>
-  )
+  );
 }
+
 
 function InfoPanel({ selectedBody }: { selectedBody: CelestialBodyProps['body'] | null }) {
   if (!selectedBody) return null;
@@ -704,7 +703,7 @@ function InteractiveOrrery() {
   return (
     <div className="w-full h-full relative bg-gradient-to-b from-black to-gray-900 rounded-lg shadow-lg">
       <Canvas camera={{ position: [0, 100, 100], fov: 45 }}>
-        <Scene time={time} setSelectedBody={setSelectedBody} paused={paused} isSpaceshipMode={isSpaceshipMode} orbitalRef={orbitControlsRef}
+        <Scene time={time} setSelectedBody={setSelectedBody} paused={paused} speed={speed} isSpaceshipMode={isSpaceshipMode} orbitalRef={orbitControlsRef}
           orbitsVisible={orbitsVisible} starVisible={starVisible} />
         <OrbitControls ref={orbitControlsRef} minDistance={10} maxDistance={500} />
       </Canvas>
@@ -758,9 +757,17 @@ export default function SpaceEducationOrrery() {
           <InteractiveOrrery />
         </section>
         <section className="mb-12">
-          <h2 className="text-3xl font-bold mb-4 text-yellow-300">Asteroid Hazard Evaluation</h2>
           <AsteroidHazardEvaluation />
         </section>
+          
+        <section className="mb-12 rounded-lg">
+          <SolarSystemEducation />
+        </section>
+         
+        <section className="mb-12 rounded-lg">
+          <SpaceDebrisCleanup />
+        </section>
+
         <section className="mb-12">
           <h2 className="text-3xl font-bold mb-4 text-yellow-300">Fascinating Facts</h2>
           <DidYouKnow />
