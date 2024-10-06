@@ -22,7 +22,9 @@ import neptuneModel from '@/assets/models/neptuneModel.glb'
 import spaceshipModel from '@/assets/models/spaceship.glb'
 import SolarSystemEducation from '@/components/SolarSystemEducation'
 import SpaceDebrisCleanup from '@/components/SpaceDebrisCleanup'
-import cometsData from './newdata.json'
+import cometsData from './cometsData.json'
+import asteroidsData from './asteroidsData.json'
+import phaData from './phaData.json'
 
 
 // eslint-disable-next-line prefer-const
@@ -518,16 +520,17 @@ function Player({ isCameraManual, orbitControlsRef }: { isCameraManual: boolean,
 
   useEffect(() => {
     if (playerRef?.current) {
-      playerRef.current.position.set(0, 10, 10);
+      playerRef.current.position.set(0, 10, -2);
+      playerRef.current.rotation.x = Math.PI / 2
+      cameraRef.current.rotation.x = Math.PI / 2
     }
   }, []);
-
 
   useFrame(() => {
     if (!playerRef.current || !cameraRef.current || !orbitControlsRef.current) return;
 
     const direction = new THREE.Vector3();
-    const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(playerRef.current.quaternion);
+    const forward = new THREE.Vector3(-1, 0, 0).applyQuaternion(playerRef.current.quaternion);
     const rotationSpeed = 0.05;
 
     if (moveForward) direction.add(forward);
@@ -547,11 +550,13 @@ function Player({ isCameraManual, orbitControlsRef }: { isCameraManual: boolean,
     }
 
     if (cameraState) {
-      const offset = new THREE.Vector3(0, 10, 10); // Camera offset from player (5 units up, 10 units back)
-      const cameraPos = playerRef.current.position.clone().add(offset.applyQuaternion(playerRef.current.quaternion)); // Adjust camera position
+      const cameraOffset = new THREE.Vector3(1, 5, 0); // Distance behind and above the spaceship
+      const desiredCameraPos = playerRef.current.position.clone().add(cameraOffset.applyQuaternion(playerRef.current.quaternion));
 
-      cameraRef.current.position.copy(cameraPos);
+      cameraRef.current.position.lerp(desiredCameraPos, 0.1); 
+
       cameraRef.current.lookAt(playerRef.current.position);
+
 
       orbitControlsRef.current.target.copy(playerRef.current.position);
       orbitControlsRef.current.update();
@@ -566,8 +571,8 @@ function Player({ isCameraManual, orbitControlsRef }: { isCameraManual: boolean,
 
   return (
     <>
-      <PerspectiveCamera ref={cameraRef} makeDefault={cameraState} manual={cameraState} fov={75} position={[10, 10, 10]} />
-      {cameraState ? <Spaceship /> : null}
+      <PerspectiveCamera ref={cameraRef} makeDefault={cameraState} manual={cameraState} fov={75} position={[10, 20, 20]} />
+      {cameraState ? <Spaceship /> : null} 
     </>
 
   )
@@ -635,16 +640,17 @@ function InfoPanel({ selectedBody }: { selectedBody: CelestialBodyProps['body'] 
   if (!selectedBody) return null;
 
   return (
-    <Card className="absolute left-4 top-4 w-64 bg-opacity-80 backdrop-blur-sm shadow-xl">
+    <Card className="absolute left-4 top-20 w-64 bg-opacity-80 backdrop-blur-sm shadow-xl">
       <CardHeader>
         <CardTitle className="text-yellow-400 font-bold">{selectedBody.name}</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent style={{overflow: 'auto'}}>
         <p>{selectedBody.description}</p>
         <p>Type: <span className="text-yellow-300">{selectedBody.type}</span></p>
-        <p>Radius: {selectedBody.radius} units</p>
-        <p>Orbit Radius: {selectedBody.sma} AU</p>
-        <p>Orbit Period: {selectedBody.orbitPeriod} Earth years</p>
+        <p>Radius: {selectedBody?.radius} units</p>
+        <p>Orbit Semi Major Axis: {selectedBody?.sma} AU</p>
+        <p>Orbit Period: {selectedBody?.orbitPeriod} Earth years</p>
+        <p>Orbit Eccentricity: {selectedBody?.eccentricity}</p>
       </CardContent>
     </Card>
   );
@@ -654,6 +660,8 @@ function SettingsPanel({ setOrbitVisibility, orbitsVisible, setStarVisibility, s
   setOrbitVisibility: () => void, orbitsVisible : boolean, setStarVisibility : () => void, starsVisible : boolean
 }) {
   const [comets, setComets] = useState<string[]>([])
+  const [asteroids, setAsteroids] = useState<string[]>([])
+  const [phas, setPhas] = useState<string[]>([])
 
   const handleComet = (comet : any) => {
     if (celestialBodies.comets.includes(comet)) {
@@ -665,23 +673,60 @@ function SettingsPanel({ setOrbitVisibility, orbitsVisible, setStarVisibility, s
     }
   }
 
+  const handleAst = (asteroid : any) => {
+    if (celestialBodies.asteroids.includes(asteroid )) {
+      celestialBodies.asteroids = celestialBodies.asteroids.filter(el => el!== asteroid )
+      setAsteroids(prev => prev.filter(el => el !== asteroid.name))
+    } else {
+      celestialBodies.asteroids.push(asteroid )
+      setAsteroids(prev => [...prev, asteroid.name])
+    }
+  }
+
+  const handlePHA = (asteroid : any) => {
+    if (celestialBodies.pha.includes(asteroid )) {
+      celestialBodies.pha = celestialBodies.pha.filter(el => el!== asteroid )
+      setPhas(prev => prev.filter(el => el !== asteroid.name))
+    } else {
+      celestialBodies.asteroids.push(asteroid )
+      setPhas(prev => [...prev, asteroid.name])
+    }
+  }
+
   return (
-    <Card className="absolute left-4 top-4 w-64 bg-opacity-80 backdrop-blur-sm shadow-xl">
+    <Card className="absolute left-4 top-4 bg-opacity-50 backdrop-blur-sm shadow-xl">
       <CardHeader>
         <CardTitle className="text-yellow-400 font-bold">Settings</CardTitle>
       </CardHeader>
-      <CardContent style={{overflow: 'auto', height: 250}}>
+      <CardContent style={{overflow: 'auto', height: 450, width: 300}}>
         <input type="checkbox" id="orbitVisibility" checked={orbitsVisible} onChange={setOrbitVisibility} />
         <label htmlFor="orbitVisibility" className="ml-2" >Show Orbits</label>
         <br />
         <input type="checkbox" id="starVisibility" checked={starsVisible} onChange={setStarVisibility} />
         <label htmlFor="starVisibility" className="ml-2" >Show Stars</label>
-        <br />
+        <br /><br />
         <h2>Comets</h2>
-        <br />
         {cometsData.map(i => (
           <>
             <input type="checkbox"  onChange={() => handleComet(i)} checked={comets.includes(i.name)} />
+            <label className="ml-2" >{i.name}</label>
+            <br />
+          </>
+        ))}
+        <br /><br />
+        <h2>Asteroids</h2>
+        {asteroidsData.map(i => (
+          <>
+            <input type="checkbox"  onChange={() => handleAst(i)} checked={asteroids.includes(i.name)} />
+            <label className="ml-2" >{i.name}</label>
+            <br />
+          </>
+        ))}
+        <br /><br />
+        <h2>PHAs</h2>
+        {phaData.map(i => (
+          <>
+            <input type="checkbox"  onChange={() => handlePHA(i)} checked={phas.includes(i.name)} />
             <label className="ml-2" >{i.name}</label>
             <br />
           </>
