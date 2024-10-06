@@ -704,7 +704,7 @@ function InteractiveOrrery() {
 
   return (
     
-    <div className=" h-screen relative mb-2 mr-1 ml-1 border border-black shadow-2xl">
+    <div className=" h-screen relative mb-2 mr-1 ml-1 mt-3 border border-black shadow-2xl">
       
       <Canvas camera={{ position: [0, 100, 100], fov: 45 }} className="bg-black">
         <Scene 
@@ -773,6 +773,9 @@ export default function SpaceEducationOrrery() {
 
   return (
     <div className="text-white bg-gradient-to-b from-gray-900 to-black">
+
+     
+
       {/* Interactive Orrery Section */}
       <section className="h-screen w-full">
         <InteractiveOrrery />

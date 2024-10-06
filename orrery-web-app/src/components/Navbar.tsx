@@ -37,7 +37,7 @@ export default function Navbar() {
 
   return (
     <motion.nav
-      className={`fixed w-full z-50 px-4 py-4 md:py-6 transition-colors duration-300 ${
+      className={`fixed  w-full z-50 px-4 py-4 md:py-6 transition-colors duration-300 ${
         scrolled ? "bg-black" : "bg-black bg-opacity-50"
       }`}
       initial={{ y: -100 }}
