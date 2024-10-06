@@ -19,6 +19,7 @@ import jupiterModel from '@/assets/models/jupiterModel.glb'
 import saturnModel from '@/assets/models/saturnModel.glb'
 import uranusModel from '@/assets/models/uranusModel.glb'
 import neptuneModel from '@/assets/models/neptuneModel.glb'
+import spaceshipModel from '@/assets/models/spaceship.glb'
 import SolarSystemEducation from '@/components/SolarSystemEducation'
 import SpaceDebrisCleanup from '@/components/SpaceDebrisCleanup'
 import cometsData from './newdata.json'
@@ -515,6 +516,13 @@ function Player({ isCameraManual, orbitControlsRef }: { isCameraManual: boolean,
     };
   }, []);
 
+  useEffect(() => {
+    if (playerRef?.current) {
+      playerRef.current.position.set(0, 10, 10);
+    }
+  }, []);
+
+
   useFrame(() => {
     if (!playerRef.current || !cameraRef.current || !orbitControlsRef.current) return;
 
@@ -525,8 +533,11 @@ function Player({ isCameraManual, orbitControlsRef }: { isCameraManual: boolean,
     if (moveForward) direction.add(forward);
     if (moveBackward) direction.sub(forward);
 
-    direction.normalize();
-    playerRef.current.position.addScaledVector(direction, 0.1);
+
+    if (direction.length() > 0) {
+      direction.normalize();
+      playerRef.current.position.addScaledVector(direction, 0.1);
+    }
 
     if (rotateLeft) {
       playerRef.current.rotation.y += rotationSpeed;  // Rotate left (yaw)
@@ -536,7 +547,7 @@ function Player({ isCameraManual, orbitControlsRef }: { isCameraManual: boolean,
     }
 
     if (cameraState) {
-      const offset = new THREE.Vector3(0, 5, 10); // Camera offset from player (5 units up, 10 units back)
+      const offset = new THREE.Vector3(0, 10, 10); // Camera offset from player (5 units up, 10 units back)
       const cameraPos = playerRef.current.position.clone().add(offset.applyQuaternion(playerRef.current.quaternion)); // Adjust camera position
 
       cameraRef.current.position.copy(cameraPos);
@@ -547,14 +558,16 @@ function Player({ isCameraManual, orbitControlsRef }: { isCameraManual: boolean,
     }
 
   })
+  
+  function Spaceship() {
+    const { scene } = useGLTF(spaceshipModel)
+    return <primitive ref={playerRef} object={scene} />
+  }
 
   return (
     <>
-      <PerspectiveCamera ref={cameraRef} makeDefault={cameraState} manual={cameraState} fov={75} position={[10, 5, 10]} />
-      <mesh ref={playerRef} position={[10, 0, 0]}>
-        <boxGeometry args={[2, 2, 2]} />
-        <meshStandardMaterial color={'00ff00'} />
-      </mesh>
+      <PerspectiveCamera ref={cameraRef} makeDefault={cameraState} manual={cameraState} fov={75} position={[10, 10, 10]} />
+      {cameraState ? <Spaceship /> : null}
     </>
 
   )
