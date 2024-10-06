@@ -29,8 +29,8 @@ public class SpacecraftMovement : MonoBehaviour
         float moveDirection = Input.GetAxis("Vertical");    // W/S or Up/Down Arrow for forward/backward
         float rotateDirection = Input.GetAxis("Horizontal"); // A/D or Left/Right Arrow for rotation
 
-        // Invert the moveDirection for forward/backward movement
-        float adjustedMoveDirection = -moveDirection; // Inverting the input
+        // Redundant Line
+        float adjustedMoveDirection = moveDirection; // Add negative sign before move direction if you need to invert
 
         // Move the spacecraft forward or backward relative to its current orientation
         Vector3 move = transform.forward * adjustedMoveDirection * moveSpeed * Time.deltaTime;

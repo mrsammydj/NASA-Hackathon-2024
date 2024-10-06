@@ -1,28 +1,50 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections;
 
 public class FollowCamera : MonoBehaviour
 {
-    public Transform target; // Your spaceship transform
-    public Vector3 offset; // Offset between the camera and the target
-    public float smoothSpeed = 0.125f; // Smoothness factor for the camera movement
 
-    private void LateUpdate()
-    {
-        // Calculate the desired position with the offset
-        Vector3 desiredPosition = target.position + offset;
+	// The target we are following
+	public Transform target;
+	// The distance in the x-z plane to the target
+	public float distance = 10.0f;
+	// the height we want the camera to be above the target
+	public float height = 5.0f;
 
-        // Smoothly move the camera to the desired position
-        Vector3 smoothedPosition = Vector3.SmoothDamp(transform.position, desiredPosition, ref velocity, smoothSpeed);
+	public float heightDamping = 2.0f;
+	public float rotationDamping = 3.0f;
 
-        // Update the camera position
-        transform.position = smoothedPosition;
+	
+	void LateUpdate()
+	{
+		// Early out if we don't have a target
+		if (!target) return;
 
-        // Optionally, make the camera look at the spaceship
-        transform.LookAt(target);
-    }
+		// Calculate the current rotation angles
+		float wantedRotationAngle = target.eulerAngles.y;
+		float wantedHeight = target.position.y + height;
 
-    private Vector3 velocity = Vector3.zero; // Helper variable for SmoothDamp
-    
+		float currentRotationAngle = transform.eulerAngles.y;
+		float currentHeight = transform.position.y;
+
+		// Damp the rotation around the y-axis
+		currentRotationAngle = Mathf.LerpAngle(currentRotationAngle, wantedRotationAngle, rotationDamping * Time.deltaTime);
+
+		// Damp the height
+		currentHeight = Mathf.Lerp(currentHeight, wantedHeight, heightDamping * Time.deltaTime);
+
+		// Convert the angle into a rotation
+		var currentRotation = Quaternion.Euler(0, currentRotationAngle, 0);
+
+		// Set the position of the camera on the x-z plane to:
+		// distance meters behind the target
+		transform.position = target.position;
+		transform.position -= currentRotation * Vector3.forward * distance;
+
+		// Set the height of the camera
+		transform.position = new Vector3(transform.position.x, currentHeight, transform.position.z);
+
+		// Always look at the target
+		transform.LookAt(target);
+	}
 }
