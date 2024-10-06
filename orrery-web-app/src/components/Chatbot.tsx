@@ -1,4 +1,5 @@
 "use client"
+
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChatBubbleOvalLeftEllipsisIcon, XMarkIcon } from '@heroicons/react/24/solid';
@@ -23,7 +24,7 @@ export default function Chatbot() {
     setInput('');
   };
 
-  const generateBotResponse = (): string => {
+  const generateBotResponse = (userInput: string): string => {
     return "I'm here to help you explore the wonders of space! 🌌 What else would you like to know?";
   };
 

@@ -752,7 +752,7 @@ export default function SpaceEducationOrrery() {
     <div className="bg-gradient-to-b from-gray-900 to-black text-white" style={{ height: '100vh' }}>
       <audio src="dayone.mp3" loop></audio>
       <InteractiveOrrery />
-      {/* <main className="container mx-auto px-4 py-8">
+       <main className="container mx-auto px-4 py-8">
         <section className="mb-12">
           <h2 className="text-3xl font-bold mb-4 text-yellow-300">Interactive Solar System</h2>
           <InteractiveOrrery />
@@ -773,7 +773,7 @@ export default function SpaceEducationOrrery() {
           <h2 className="text-3xl font-bold mb-4 text-yellow-300">Fascinating Facts</h2>
           <DidYouKnow />
         </section>
-      </main> */}
+      </main> 
     </div>
   )
 }
