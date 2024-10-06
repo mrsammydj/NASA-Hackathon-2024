@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
-import { Canvas, useFrame, useLoader } from '@react-three/fiber'
+import { useState, useRef } from 'react'
+import { Canvas, useFrame } from '@react-three/fiber'
 import { Environment, useTexture } from '@react-three/drei'
 import * as THREE from 'three'
 import { Button } from "@/components/ui/button"

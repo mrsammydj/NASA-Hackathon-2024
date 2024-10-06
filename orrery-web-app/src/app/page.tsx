@@ -4,7 +4,7 @@ import React, { useRef, useState, useEffect, useMemo } from 'react'
 import { Canvas, useFrame, useThree, useLoader } from '@react-three/fiber'
 import { OrbitControls, Html, Stars, useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Slider } from "@/components/ui/slider"
@@ -20,20 +20,6 @@ import saturnModel from '@/assets/models/saturnModel.glb'
 import uranusModel from '@/assets/models/uranusModel.glb'
 import neptuneModel from '@/assets/models/neptuneModel.glb'
 
-function eccentricAnomalyFromMeanAnomaly(M: number, e: number) {
-  let E = M;
-  let delta = 1;
-  while (delta > 1e-6) {
-    const newE = M + e * Math.sin(E);
-    delta = Math.abs(newE - E);
-    E = newE;
-  }
-  return E;
-}
-
-function trueAnomalyFromEccentricAnomaly(E: number, e: number) {
-  return 2 * Math.atan2(Math.sqrt(1 + e) * Math.sin(E / 2), Math.sqrt(1 - e) * Math.cos(E / 2));
-}
 
 const celestialBodies = {
   sun: { 
@@ -381,11 +367,27 @@ function CelestialBody({ body, time, setSelectedBody, paused }: CelestialBodyPro
           exit={{ opacity: 0 }}
           className="text-white text-xs bg-black bg-opacity-50 px-1 rounded"
         >
-          {name}
+          {body.name}
         </motion.div>
       </Html>
     </group>
-  );
+  )
+}
+
+// Helper functions for Kepler's laws (eccentric anomaly, true anomaly conversions)
+function eccentricAnomalyFromMeanAnomaly(M: number, e: number) {
+  let E = M; // Initial guess
+  let delta = 1;
+  while (delta > 1e-6) {
+    const newE = M + e * Math.sin(E);
+    delta = Math.abs(newE - E);
+    E = newE;
+  }
+  return E;
+}
+
+function trueAnomalyFromEccentricAnomaly(E: number, e: number) {
+  return 2 * Math.atan2(Math.sqrt(1 + e) * Math.sin(E / 2), Math.sqrt(1 - e) * Math.cos(E / 2));
 }
 
 
@@ -499,11 +501,12 @@ function InteractiveOrrery() {
   const [selectedBody, setSelectedBody] = useState<CelestialBodyProps['body'] | null>(null);
   const [paused, setPaused] = useState(false);
 
+
   useEffect(() => {
     let animationId: number;
     const animate = () => {
       if (!paused) {
-        setTime((prevTime) => prevTime + 0.01 * speed);
+        setTime((prevTime) => prevTime + 0.01); // Base time increment remains the same.;
       }
       animationId = requestAnimationFrame(animate);
     };
@@ -542,17 +545,16 @@ function InteractiveOrrery() {
 export default function SpaceEducationOrrery() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
+
       <main className="container mx-auto px-4 py-8">
         <section className="mb-12">
           <h2 className="text-3xl font-bold mb-4 text-yellow-300">Interactive Solar System</h2>
           <InteractiveOrrery />
         </section>
-
         <section className="mb-12">
           <h2 className="text-3xl font-bold mb-4 text-yellow-300">Asteroid Hazard Evaluation</h2>
           <AsteroidHazardEvaluation />
         </section>
-
         <section className="mb-12">
           <h2 className="text-3xl font-bold mb-4 text-yellow-300">Fascinating Facts</h2>
           <DidYouKnow />
@@ -561,5 +563,6 @@ export default function SpaceEducationOrrery() {
     </div>
   )
 }
+
 
 

@@ -12,7 +12,7 @@ export default function Footer() {
         <div className="mt-4">
           <p className="font-bold">Space Exploration Challenge</p>
           <p>
-            Participate in our "Space Education Orrery Challenge" to learn more about the solar system and beyond. 
+            Participate in our &quot;Space Education Orrery Challenge&quot; to learn more about the solar system and beyond. 
             Compete with friends and earn rewards for discovering amazing facts about space!
           </p>
         </div>
