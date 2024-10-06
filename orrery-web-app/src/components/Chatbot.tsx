@@ -17,6 +17,8 @@ export default function Chatbot() {
 
     // Placeholder for AI response. Replace with API call if needed.
     setTimeout(() => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      //@ts-ignore
       const botResponse = generateBotResponse();
       setMessages(prevMessages => [...prevMessages, { user: false, text: botResponse }]);
     }, 1000);
