@@ -1,8 +1,8 @@
 "use client"
 
-import React, { useRef, useState, useEffect, useMemo } from 'react'
-import { Canvas, useFrame, useThree, useLoader } from '@react-three/fiber'
-import { OrbitControls, Html, Stars, useGLTF } from '@react-three/drei'
+import React, { useRef, useState, useEffect, type Ref } from 'react'
+import { Canvas, useFrame } from '@react-three/fiber'
+import { OrbitControls, Html, Stars, useGLTF, PerspectiveCamera } from '@react-three/drei'
 import * as THREE from 'three'
 import { motion } from 'framer-motion'
 import { Button } from "@/components/ui/button"
@@ -248,7 +248,7 @@ interface CelestialBodyProps {
 function CelestialBody({ body, time, setSelectedBody, paused }: CelestialBodyProps) {
   const ref = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
-  const { sma, eccentricity, inclination, raan, argPerihelion, orbitPeriod, model, scale, name, rotationPeriod, color, radius, type } = body;
+  const { sma, eccentricity, inclination, raan, argPerihelion, orbitPeriod, model, scale, name, rotationPeriod, color, type } = body;
 
   const isSun = name === "Sun";
 
@@ -262,7 +262,7 @@ function CelestialBody({ body, time, setSelectedBody, paused }: CelestialBodyPro
   const meanMotion = (2 * Math.PI) / orbitalPeriod;
   const rotationSpeed = rotationPeriod ? (2 * Math.PI) / (rotationPeriod * 24 * 60 * 60) : 0.01;
 
-  useFrame((state, delta) => {
+  useFrame(() => {
     if (paused) return;
 
     if (!isSun && ref.current) {
@@ -307,6 +307,7 @@ function CelestialBody({ body, time, setSelectedBody, paused }: CelestialBodyPro
 
   const renderBody = () => {
     if (model) {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       const { scene } = useGLTF(model);
       
       scene.traverse((child) => {
@@ -429,8 +430,123 @@ function Orbit({ a, e, i, omega, Omega }: { a: number, e: number, i: number, ome
   );
 }
 
+function Player({ isCameraManual, orbitControlsRef } : { isCameraManual: boolean, orbitControlsRef: any }) {
+  const cameraRef : Ref<any> = useRef()
+  const playerRef : Ref<any> = useRef()
+  const [moveForward, setMoveForward] = useState(false);
+  const [moveBackward, setMoveBackward] = useState(false);
+  const [rotateLeft, setRotateLeft] = useState(false);
+  const [rotateRight, setRotateRight] = useState(false);
+  const [cameraState, setCameraState] = useState(false)
+
+  useEffect(() => {
+    if (!cameraRef.current) return
+    setCameraState(isCameraManual)
+  }, [isCameraManual])
+
+  // Keyboard events to set the movement directions
+  useEffect(() => {
+    const handleKeyDown = (e : any) => {
+      switch (e.code) {
+        case 'KeyW':
+          setMoveForward(true);
+          break;
+        case 'KeyS':
+          setMoveBackward(true);
+          break;
+        case 'KeyA':
+          setRotateLeft(true);
+          break;
+        case 'KeyD':
+          setRotateRight(true);
+          break;
+        default:
+          break;
+      }
+    };
+
+    const handleKeyUp = (e : any) => {
+      switch (e.code) {
+        case 'KeyW':
+          setMoveForward(false);
+          break;
+        case 'KeyS':
+          setMoveBackward(false);
+          break;
+        case 'KeyA':
+          setRotateLeft(false);
+          break;
+        case 'KeyD':
+          setRotateRight(false);
+          break;
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, []);
+
+  useFrame(() => {
+    if (!playerRef.current || !cameraRef.current || !orbitControlsRef.current) return;
+
+    const direction = new THREE.Vector3();
+    const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(playerRef.current.quaternion);
+    const rotationSpeed = 0.05;
+
+    if (moveForward) direction.add(forward);
+    if (moveBackward) direction.sub(forward);
+
+    direction.normalize();
+    playerRef.current.position.addScaledVector(direction, 0.1);
+
+    if (rotateLeft) {
+      playerRef.current.rotation.y += rotationSpeed;  // Rotate left (yaw)
+    }
+    if (rotateRight) {
+      playerRef.current.rotation.y -= rotationSpeed;  // Rotate right (yaw)
+    }
+
+    if (cameraState) {
+      const offset = new THREE.Vector3(0, 5, 10); // Camera offset from player (5 units up, 10 units back)
+      const cameraPos = playerRef.current.position.clone().add(offset.applyQuaternion(playerRef.current.quaternion)); // Adjust camera position
+  
+      cameraRef.current.position.copy(cameraPos);
+      cameraRef.current.lookAt(playerRef.current.position);
+  
+      orbitControlsRef.current.target.copy(playerRef.current.position);
+      orbitControlsRef.current.update();
+    }
+
+  })
+
+  return (
+    <>
+    <PerspectiveCamera ref={cameraRef} makeDefault={cameraState} manual={cameraState} fov={75} position={[10, 5, 10]} />
+    <mesh ref={playerRef} position={[10, 0, 0]}>
+      <boxGeometry args={[2, 2, 2]} />
+      <meshStandardMaterial color={'00ff00'} />
+    </mesh>
+    </>
+    
+  )
+}
+
 // Updated Scene function
-function Scene({ time, setSelectedBody, paused }: { time: number, setSelectedBody: (body: CelestialBodyProps['body'] | null) => void, paused: boolean }) {
+function Scene({ time, setSelectedBody, paused, isSpaceshipMode, orbitalRef }: 
+  { time: number, setSelectedBody: (body: CelestialBodyProps['body'] | null) => void, paused: boolean, isSpaceshipMode: boolean, orbitalRef: Ref<any> }) {
+
+  const [cameraManual, setCameraManual] = useState(false)
+  useEffect(() => {
+    setCameraManual(isSpaceshipMode)
+  }, [isSpaceshipMode])
+
   return (
     <>
       {/* CHANGE: Increased ambient light intensity for overall brightness */}
@@ -472,6 +588,9 @@ function Scene({ time, setSelectedBody, paused }: { time: number, setSelectedBod
           />
         </React.Fragment>
       ))}
+
+
+      <Player isCameraManual={cameraManual} orbitControlsRef={orbitalRef} />
     </>
   )
 }
@@ -496,11 +615,12 @@ function InfoPanel({ selectedBody }: { selectedBody: CelestialBodyProps['body'] 
 }
 
 function InteractiveOrrery() {
+  const orbitControlsRef : Ref<any> = useRef()
   const [time, setTime] = useState(0);
   const [speed, setSpeed] = useState(1);
   const [selectedBody, setSelectedBody] = useState<CelestialBodyProps['body'] | null>(null);
   const [paused, setPaused] = useState(false);
-
+  const [isSpaceshipMode, setSpaceshipMode] = useState(false)
 
   useEffect(() => {
     let animationId: number;
@@ -517,10 +637,12 @@ function InteractiveOrrery() {
   return (
     <div className="w-full h-[600px] relative bg-gradient-to-b from-black to-gray-900 rounded-lg shadow-lg">
       <Canvas camera={{ position: [0, 100, 100], fov: 45 }}>
-        <Scene time={time} setSelectedBody={setSelectedBody} paused={paused} />
-        <OrbitControls minDistance={10} maxDistance={500} />
+        <Scene time={time} setSelectedBody={setSelectedBody} paused={paused} isSpaceshipMode={isSpaceshipMode} orbitalRef={orbitControlsRef} />
+        <OrbitControls ref={orbitControlsRef} minDistance={10} maxDistance={500} />
       </Canvas>
       
+
+      <Button onClick={() => setSpaceshipMode(prev => !prev)}>Spaceship Mode</Button>
       <InfoPanel selectedBody={selectedBody} />
       
       <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center bg-gray-800 bg-opacity-90 backdrop-blur-sm p-4 rounded-lg shadow-md">
@@ -563,6 +685,3 @@ export default function SpaceEducationOrrery() {
     </div>
   )
 }
-
-
-
