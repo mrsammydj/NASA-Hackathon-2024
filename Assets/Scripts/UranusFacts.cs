@@ -55,10 +55,12 @@ public class UranusFacts : MonoBehaviour
     };
 
     public TextMeshProUGUI factText;
+    public AudioClip click;
 
     public void ShowRandomFact()
     {
         int randomIndex = Random.Range(0, facts.Length);
         factText.text = facts[randomIndex];
+        MusicManager.Instance.PlayMusic(click);
     }
 }

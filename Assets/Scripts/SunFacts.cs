@@ -62,6 +62,7 @@ public class SunFacts : MonoBehaviour
 
     // Reference to the UI Text component
     public TextMeshProUGUI factText;
+    public AudioClip click;
 
     // Method to display a random fact
     public void ShowRandomFact()
@@ -69,5 +70,6 @@ public class SunFacts : MonoBehaviour
         // Get a random index and set the UI text to the corresponding fact
         int randomIndex = Random.Range(0, facts.Length);
         factText.text = facts[randomIndex];
+        MusicManager.Instance.PlayMusic(click);
     }
 }
