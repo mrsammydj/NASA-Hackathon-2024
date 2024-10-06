@@ -164,7 +164,7 @@ export default function AsteroidHazardEvaluation() {
             <div className="flex flex-col items-center rounded-md bg-gray-700 p-6 text-center">
               <Info className="mb-4 h-16 w-16 text-green-400" />
               <h4 className="mb-2 text-2xl font-semibold">Gravity Tractor</h4>
-              <p className="text-xl text-gray-300">Use a spacecraft's gravity to slowly alter the asteroid's path</p>
+              <p className="text-xl text-gray-300">Use a spacecraft&apos;s gravity to slowly alter the asteroid&apos;s path</p>
             </div>
             <div className="flex flex-col items-center rounded-md bg-gray-700 p-6 text-center">
               <AlertTriangle className="mb-4 h-16 w-16 text-red-400" />
