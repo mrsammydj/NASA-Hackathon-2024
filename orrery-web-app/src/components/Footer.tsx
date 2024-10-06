@@ -66,7 +66,7 @@ function Particles({ count = 1000 }) {
     <points>
       <bufferGeometry>
         <bufferAttribute
-          attachObject={["attributes", "position"]}
+          attach="attributes.position"
           count={positions.length / 3}
           array={positions}
           itemSize={3}

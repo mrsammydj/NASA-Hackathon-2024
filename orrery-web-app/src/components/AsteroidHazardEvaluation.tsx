@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { motion } from "framer-motion"
 import { AlertTriangle, Info, Zap } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
@@ -39,19 +39,19 @@ export default function AsteroidHazardEvaluation() {
     setStars(newStars)
   }, [])
 
-  useEffect(() => {
-    const newHazardLevel = calculateHazardLevel()
-    setHazardLevel(newHazardLevel)
-  }, [asteroidData])
-
-  const handleSliderChange = (name: string, value: number[]) => {
-    setAsteroidData({ ...asteroidData, [name]: value[0] })
-  }
-
-  const calculateHazardLevel = () => {
+  const calculateHazardLevel = useCallback(() => {
     const { size, velocity, distance, composition } = asteroidData
     const hazard = ((size * velocity) / distance) * composition
     return Math.min(Math.round(hazard * 2), 100) // Cap at 100
+  }, [asteroidData])
+
+  useEffect(() => {
+    const newHazardLevel = calculateHazardLevel()
+    setHazardLevel(newHazardLevel)
+  }, [asteroidData, calculateHazardLevel])
+
+  const handleSliderChange = (name: string, value: number[]) => {
+    setAsteroidData({ ...asteroidData, [name]: value[0] })
   }
 
   const getHazardCategory = (level: number) => {
@@ -90,8 +90,8 @@ export default function AsteroidHazardEvaluation() {
           >
             <h3 className="mb-8 text-4xl font-bold text-yellow-300">Asteroid Parameters</h3>
             <div className="space-y-8">
-              {[
-                { name: "size", label: "Size (km)", min: 0.1, max: 10, step: 0.1 },
+              {[{
+                name: "size", label: "Size (km)", min: 0.1, max: 10, step: 0.1 },
                 { name: "velocity", label: "Velocity (km/s)", min: 1, max: 50, step: 1 },
                 { name: "distance", label: "Distance (million km)", min: 0.1, max: 10, step: 0.1 },
                 { name: "composition", label: "Composition Factor", min: 1, max: 3, step: 0.1 },
@@ -136,12 +136,10 @@ export default function AsteroidHazardEvaluation() {
                   <span className="font-semibold text-green-400">Low (0-32%):</span> Minimal threat, routine monitoring
                 </li>
                 <li>
-                  <span className="font-semibold text-yellow-400">Moderate (33-65%):</span> Potential danger, increased
-                  observation required
+                  <span className="font-semibold text-yellow-400">Moderate (33-65%):</span> Potential danger, increased observation required
                 </li>
                 <li>
-                  <span className="font-semibold text-red-400">High (66-100%):</span> Significant threat, immediate
-                  action may be necessary
+                  <span className="font-semibold text-red-400">High (66-100%):</span> Significant threat, immediate action may be necessary
                 </li>
               </ul>
             </div>

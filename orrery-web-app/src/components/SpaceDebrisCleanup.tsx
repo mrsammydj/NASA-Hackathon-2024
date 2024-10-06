@@ -1,13 +1,18 @@
-"use client"
-
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { motion, useAnimation } from "framer-motion"
 import { Rocket, Trash2 } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
 
-const SpaceObject = ({ type, position, onCollect }) => {
+interface SpaceObjectProps {
+  id: number; // Add unique identifier
+  type: 'debris' | 'satellite';
+  position: { x: number; y: number };
+  onCollect: () => void;
+}
+
+const SpaceObject = ({ id, type, position, onCollect }: SpaceObjectProps) => {
   const controls = useAnimation()
 
   useEffect(() => {
@@ -34,9 +39,17 @@ export default function SpaceDebrisCleanup() {
   const [score, setScore] = useState(0)
   const [timeLeft, setTimeLeft] = useState(60)
   const [gameActive, setGameActive] = useState(false)
-  const [spaceObjects, setSpaceObjects] = useState([])
-  const gameAreaRef = useRef(null)
+  const [spaceObjects, setSpaceObjects] = useState<SpaceObjectProps[]>([])
+  const gameAreaRef = useRef<HTMLDivElement>(null)
   const { toast } = useToast()
+
+  const endGame = useCallback(() => {
+    setGameActive(false)
+    toast({
+      title: "Game Over!",
+      description: `You collected ${score} pieces of space debris.`,
+    })
+  }, [toast, score])
 
   useEffect(() => {
     if (gameActive && timeLeft > 0) {
@@ -45,7 +58,7 @@ export default function SpaceDebrisCleanup() {
     } else if (timeLeft === 0) {
       endGame()
     }
-  }, [gameActive, timeLeft])
+  }, [gameActive, timeLeft, endGame])
 
   useEffect(() => {
     if (gameActive) {
@@ -61,30 +74,23 @@ export default function SpaceDebrisCleanup() {
     setSpaceObjects([])
   }
 
-  const endGame = () => {
-    setGameActive(false)
-    toast({
-      title: "Game Over!",
-      description: `You collected ${score} pieces of space debris.`,
-    })
-  }
-
   const spawnSpaceObject = () => {
     if (gameAreaRef.current) {
       const { width, height } = gameAreaRef.current.getBoundingClientRect()
-      const newObject = {
-        id: Date.now(),
+      const newObject: SpaceObjectProps = {
+        id: Date.now(), // Assign unique identifier
         type: Math.random() > 0.2 ? "debris" : "satellite",
         position: {
           x: Math.random() * (width - 24),
           y: Math.random() * (height - 24),
         },
+        onCollect: () => collectObject(Date.now(), newObject.type),
       }
       setSpaceObjects((prev) => [...prev, newObject])
     }
   }
 
-  const collectObject = (id, type) => {
+  const collectObject = (id: number, type: 'debris' | 'satellite') => {
     if (type === "debris") {
       setScore((prev) => prev + 1)
     } else {
@@ -146,10 +152,11 @@ export default function SpaceDebrisCleanup() {
         >
           {spaceObjects.map((obj) => (
             <SpaceObject
-              key={obj.id}
+              key={obj.id} // Use the unique id as key
+              id={obj.id} // Provide id prop to SpaceObject
               type={obj.type}
               position={obj.position}
-              onCollect={() => collectObject(obj.id, obj.type)}
+              onCollect={obj.onCollect}
             />
           ))}
           {!gameActive && (
