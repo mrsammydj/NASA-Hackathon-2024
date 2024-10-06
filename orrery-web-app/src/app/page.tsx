@@ -283,7 +283,7 @@ function CelestialBody({ body, time, setSelectedBody, paused, speed }: Celestial
 
     if (!isSun && ref.current) {
       // Use time and speed to calculate mean anomaly
-      const M = meanMotion * time * speed; // Time evolution according to speed
+      const M = meanMotion * time * speed * 10; // Time evolution according to speed
       const E = eccentricAnomalyFromMeanAnomaly(M, ecc); // Eccentric anomaly
       const trueAnomaly = trueAnomalyFromEccentricAnomaly(E, ecc); // True anomaly
 
@@ -331,6 +331,7 @@ function CelestialBody({ body, time, setSelectedBody, paused, speed }: Celestial
 
   const renderBody = () => {
     if (model) {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       const { scene } = useGLTF(model);
 
 
@@ -585,7 +586,7 @@ function Scene({ time, setSelectedBody, paused, speed, isSpaceshipMode, orbitalR
       {/* Planets */}
       {celestialBodies.planets.map((planet) => (
         <React.Fragment key={planet.name}>
-          <CelestialBody body={planet} time={time} setSelectedBody={setSelectedBody} paused={paused} />
+          <CelestialBody body={planet} time={time} setSelectedBody={setSelectedBody} paused={paused} speed={speed}  />
           {orbitsVisible ? <Orbit
             a={planet.sma}
             e={planet.eccentricity}
@@ -599,7 +600,7 @@ function Scene({ time, setSelectedBody, paused, speed, isSpaceshipMode, orbitalR
       {/* Asteroids, Comets, and PHAs */}
       {[...celestialBodies.asteroids, ...celestialBodies.comets, ...celestialBodies.pha].map((body) => (
         <React.Fragment key={body.name}>
-          <CelestialBody body={body} time={time} setSelectedBody={setSelectedBody} paused={paused} />
+          <CelestialBody body={body} time={time} setSelectedBody={setSelectedBody} paused={paused} speed={speed} />
           {orbitsVisible ? <Orbit
             a={body.sma}
             e={body.eccentricity}
