@@ -16,7 +16,7 @@ export default function Chatbot() {
 
     // Placeholder for AI response. Replace with API call if needed.
     setTimeout(() => {
-      const botResponse = generateBotResponse(input);
+      const botResponse = generateBotResponse();
       setMessages(prevMessages => [...prevMessages, { user: false, text: botResponse }]);
     }, 1000);
 
