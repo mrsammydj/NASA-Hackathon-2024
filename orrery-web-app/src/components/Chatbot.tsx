@@ -23,7 +23,7 @@ export default function Chatbot() {
     setInput('');
   };
 
-  const generateBotResponse = (userMessage: string): string => {
+  const generateBotResponse = (): string => {
     return "I'm here to help you explore the wonders of space! 🌌 What else would you like to know?";
   };
 
