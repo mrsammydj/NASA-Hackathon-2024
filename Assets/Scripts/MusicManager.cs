@@ -49,7 +49,7 @@ public class MusicManager : MonoBehaviour
     }
 
 
-    public void PlayMusic(AudioClip clip)
+    public void PlayMusic(AudioClip clip, bool ignorePause = false)
     {
         if (clip != null && audioSource != null)
         {
@@ -57,6 +57,10 @@ public class MusicManager : MonoBehaviour
             audioSource.loop = false;
             audioSource.playOnAwake = false;
             audioSource.Play();
+            if (ignorePause)
+            {
+                audioSource.ignoreListenerPause = true;
+            }
         }
         else
         {
