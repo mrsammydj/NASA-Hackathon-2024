@@ -8,8 +8,9 @@ public class SceneLoader : MonoBehaviour
     public AudioClip click;
     public void LoadSceneByIndex(int sceneIndex)
     {
-        SceneManager.LoadScene(sceneIndex);
+        SceneManager.LoadScene(sceneIndex, LoadSceneMode.Single);
         MusicManager.Instance.PlayMusic(click); //play click sound
+        Time.timeScale=1;
     }
 
 }

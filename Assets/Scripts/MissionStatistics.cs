@@ -20,6 +20,7 @@ public class MissionStatistics : MonoBehaviour
     private float startTime;             // Start time of the mission
     //private float speed;                 
     //private Vector3 lastPosition;
+    private bool isCheckpointSoundPlayed = false;
 
     void Start()
     {
@@ -34,9 +35,16 @@ public class MissionStatistics : MonoBehaviour
         float timeElapsed = Time.time - startTime;
         durationText.text = $"Mission Duration: {timeElapsed:F2} s";
 
-        // Update spacecraft coordinates
         Vector3 coordinates = playerTransform.position;
-        coordinatesText.text = $"(X, Y, Z): ({coordinates.x:F2}, {coordinates.y:F2}, {coordinates.z:F2})";
+
+        // Define the offset values
+        float xOffset = 0.0f;    // No offset for X
+        float yOffset = 10.0f;   // Offset Y by 10
+        float zOffset = 50.0f;   // Offset Z by 50
+
+        // Format and display the coordinates with the respective offsets
+        coordinatesText.text = $"(X, Y, Z): ({coordinates.x + xOffset:F2}, {coordinates.y + yOffset:F2}, {coordinates.z + zOffset:F2})";
+
 
         // Calculate distance to Earth and update text
         float distanceToTarget = Vector3.Distance(earthTransform.position, playerTransform.position);
@@ -48,13 +56,15 @@ public class MissionStatistics : MonoBehaviour
         // speed = distance / deltaTime; 
         // speedText.text = $"Speed: {speed:F2} m/s";
 
-        // if (distanceToTarget<=10.1f){
-        //     MusicManager.Instance.PlayMusic(checkpointSound);
-        // }
+        if (distanceToTarget<=11f && isCheckpointSoundPlayed==false){
+            MusicManager.Instance.PlayMusic(checkpointSound);
+            isCheckpointSoundPlayed=true;
+        }
+        
 
         if (distanceToTarget<=10){
             Debug.Log("checkpoint reached");
-            MusicManager.Instance.PlayMusic(checkpointSound, true);
+            // MusicManager.Instance.PlayMusic(checkpointSound, true);
             panel.SetActive(true);
             Time.timeScale = 0f;
             distanceText.text = "Dist: 0.00";
@@ -64,4 +74,6 @@ public class MissionStatistics : MonoBehaviour
             controlText.color=color;
         }
     }
+
+   
 }
