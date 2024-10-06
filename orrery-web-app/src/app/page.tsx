@@ -691,6 +691,7 @@ function SettingsPanel({ setOrbitVisibility, orbitsVisible, setStarVisibility, s
   );
 }
 
+
 function InteractiveOrrery() {
   const orbitControlsRef: Ref<any> = useRef()
   const [time, setTime] = useState(0);
@@ -706,7 +707,7 @@ function InteractiveOrrery() {
     let animationId: number;
     const animate = () => {
       if (!paused) {
-        setTime((prevTime) => prevTime + 0.01); // Base time increment remains the same.;
+        setTime((prevTime) => prevTime + 0.01); // Base time increment remains the same.
       }
       animationId = requestAnimationFrame(animate);
     };
@@ -715,38 +716,60 @@ function InteractiveOrrery() {
   }, [speed, paused]);
 
   return (
-    <div className="w-full h-full relative bg-gradient-to-b from-black to-gray-900 rounded-lg shadow-lg">
-      <Canvas camera={{ position: [0, 100, 100], fov: 45 }}>
-        <Scene time={time} setSelectedBody={setSelectedBody} paused={paused} speed={speed} isSpaceshipMode={isSpaceshipMode} orbitalRef={orbitControlsRef}
-          orbitsVisible={orbitsVisible} starVisible={starVisible} />
+    
+    <div className=" h-screen relative mb-2 mr-1 ml-1 mt-3 border border-black shadow-2xl">
+      
+      <Canvas camera={{ position: [0, 100, 100], fov: 45 }} className="bg-black">
+        <Scene 
+          time={time} 
+          setSelectedBody={setSelectedBody} 
+          paused={paused} 
+          speed={speed} 
+          isSpaceshipMode={isSpaceshipMode} 
+          orbitalRef={orbitControlsRef}
+          orbitsVisible={orbitsVisible} 
+          starVisible={starVisible} 
+        />
         <OrbitControls ref={orbitControlsRef} minDistance={10} maxDistance={500} />
       </Canvas>
 
+      {/* Controls */}
+      <div className="absolute top-4 left-4 flex flex-wrap gap-4 z-20">
+        <Button onClick={() => setSpaceshipMode(prev => !prev)}>Spaceship Mode</Button>
+        <Button onClick={() => setSettingsVisible(prev => !prev)}>Settings</Button>
+      </div>
 
-      <Button onClick={() => setSpaceshipMode(prev => !prev)}>Spaceship Mode</Button>
-      <Button onClick={() => setSettingsVisible(prev => !prev)}>Settings</Button>
-      <InfoPanel selectedBody={selectedBody} />
+      {isSettingsVisible &&
+        <SettingsPanel
+          orbitsVisible={orbitsVisible}
+          setOrbitVisibility={() => setOrbitsVisible(prev => !prev)}
+          starsVisible={starVisible}
+          setStarVisibility={() => setStarVisible(prev => !prev)}
+        />
+      }
 
-      {isSettingsVisible ? 
-      <SettingsPanel orbitsVisible={orbitsVisible} setOrbitVisibility={() => setOrbitsVisible(prev => !prev)}
-        starsVisible={starVisible} setStarVisibility={() => setStarVisible(prev => !prev)}
-       /> 
-      : null}
+      {selectedBody && <InfoPanel selectedBody={selectedBody} />}
 
-      <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center bg-gray-800 bg-opacity-90 backdrop-blur-sm p-4 rounded-lg shadow-md">
+      {/* Responsive Bottom Control Panel */}
+      <div className="absolute bottom-4 left-4 right-4 flex flex-col md:flex-row justify-between items-center bg-gray-800 bg-opacity-90 backdrop-blur-sm p-4 rounded-lg shadow-md space-y-4 md:space-y-0 z-20">
         <Button className="font-bold text-lg" onClick={() => setPaused(!paused)}>
           {paused ? "Resume" : "Pause"}
         </Button>
-        <div className="flex-1 mx-4">
+
+        <div className="w-full md:flex-1 md:mx-4">
           <Slider
             value={[speed]}
             onValueChange={(value) => setSpeed(value[0])}
             min={0.1}
             max={5}
             step={0.1}
+            className="w-full"
           />
         </div>
-        <div className="text-lg font-bold">Speed: {speed.toFixed(1)}x</div>
+
+        <div className="text-lg font-bold w-full text-center md:text-left md:w-auto">
+          Speed: {speed.toFixed(1)}x
+        </div>
       </div>
     </div>
   );
@@ -762,22 +785,26 @@ export default function SpaceEducationOrrery() {
   }, [])
 
   return (
-    <div className="bg-gradient-to-b from-gray-900 to-black text-white" style={{ height: '100vh' }}>
-      <audio src="dayone.mp3" loop></audio>
-      <InteractiveOrrery />
-      {/* <main className="container mx-auto px-4 py-8">
+    <div className="text-white bg-gradient-to-b from-gray-900 to-black">
+
+     
+
+      {/* Interactive Orrery Section */}
+      <section className="h-screen w-full">
+        <InteractiveOrrery />
+      </section>
+
+      {/* Foreground Content Sections */}
+      <main className="container mx-auto px-4 py-8">
         <section className="mb-12">
           <h2 className="text-3xl font-bold mb-4 text-yellow-300">Interactive Solar System</h2>
-          <InteractiveOrrery />
-        </section>
-        <section className="mb-12">
           <AsteroidHazardEvaluation />
         </section>
-          
+
         <section className="mb-12 rounded-lg">
           <SolarSystemEducation />
         </section>
-         
+
         <section className="mb-12 rounded-lg">
           <SpaceDebrisCleanup />
         </section>
@@ -786,7 +813,7 @@ export default function SpaceEducationOrrery() {
           <h2 className="text-3xl font-bold mb-4 text-yellow-300">Fascinating Facts</h2>
           <DidYouKnow />
         </section>
-      </main> */}
+      </main>
     </div>
   )
 }

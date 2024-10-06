@@ -37,7 +37,7 @@ export default function Navbar() {
 
   return (
     <motion.nav
-      className={`fixed w-full z-50 px-4 py-4 md:py-6 transition-colors duration-300 ${
+      className={`fixed  w-full z-50 px-4 py-4 md:py-6 transition-colors duration-300 ${
         scrolled ? "bg-black" : "bg-black bg-opacity-50"
       }`}
       initial={{ y: -100 }}
@@ -53,7 +53,7 @@ export default function Navbar() {
             <Rocket className="h-10 w-10 text-purple-500" />
           </motion.div>
           <span className="text-3xl font-extrabold text-white group-hover:text-purple-400 transition-colors">
-            Space Orrery
+          Astral Odyssey
           </span>
         </Link>
 

@@ -27,16 +27,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      
+    <html className="bg-gradient-to-b from-gray-900 to-black" lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* <Navbar /> */}
+           <Navbar /> 
+
         {children}
         <Chatbot />
       </body>
-      {/* <Footer /> */}
+     <Footer /> 
     </html>
   );
 }
