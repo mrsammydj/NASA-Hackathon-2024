@@ -1,32 +1,71 @@
 'use client'
 
-import { useState, useRef } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
-import { Environment, useTexture } from '@react-three/drei'
+import { useState, useRef, useEffect } from 'react'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 
+// SpaceBackground with realistic stars, black background, and twinkling effect
 function SpaceBackground() {
-  const mesh = useRef<THREE.Mesh>(null)
-  const texture = useTexture('/assets/3d/texture_earth.jpg')
+  const starGeometry = useRef<THREE.BufferGeometry>(null)
+  const starMaterial = useRef<THREE.PointsMaterial>(null)
+  const stars = useRef<THREE.Points>(null)
 
-  useFrame((state, delta) => {
-    if (mesh.current) {
-      mesh.current.rotation.x -= delta * 0.05
+  useEffect(() => {
+    if (starGeometry.current) {
+      const starVertices = []
 
-      mesh.current.rotation.y -= delta * 0.05
+      // Create a large number of stars with realistic random distribution
+      for (let i = 0; i < 5000; i++) {
+        const x = (Math.random() - 0.5) * 2000
+        const y = (Math.random() - 0.5) * 2000
+        const z = (Math.random() - 0.5) * 2000
+        starVertices.push(x, y, z)
+      }
+
+      starGeometry.current.setAttribute(
+        'position',
+        new THREE.Float32BufferAttribute(starVertices, 3)
+      )
+    }
+  }, [])
+
+  useFrame(({ clock }) => {
+    // Twinkling effect
+    if (starMaterial.current) {
+      const time = clock.getElapsedTime()
+      starMaterial.current.opacity = 0.8 + Math.sin(time * 2) * 0.2
+    }
+
+    // Rotate stars slowly
+    if (stars.current) {
+      stars.current.rotation.y += 0.0002 // Slowly rotate to give the feeling of drifting through space
     }
   })
 
   return (
-    <mesh ref={mesh}>
-      <sphereGeometry args={[30, 64, 64]} />
-      <meshStandardMaterial map={texture} side={THREE.BackSide} />
-    </mesh>
+    <points ref={stars}>
+      <bufferGeometry ref={starGeometry} />
+      <pointsMaterial ref={starMaterial} color="#ffffff" size={0.7} sizeAttenuation transparent opacity={0.9} />
+    </points>
   )
+}
+
+// Animate the camera to add realism to space drift
+function AnimatedCamera() {
+  const { camera } = useThree()
+
+  useFrame(({ clock }) => {
+    const time = clock.getElapsedTime()
+    camera.position.x = Math.sin(time * 0.1) * 2
+    camera.position.y = Math.cos(time * 0.1) * 2
+    camera.lookAt(0, 0, 0) // Keep looking at the center
+  })
+
+  return null
 }
 
 function ContactForm() {
@@ -92,10 +131,10 @@ function ContactForm() {
 export default function Contact() {
   return (
     <div className="w-full h-screen relative">
-      <Canvas camera={{ position: [0, 0, 1], fov: 75 }}>
+      <Canvas camera={{ position: [0, 0, 5], fov: 75 }} style={{ background: 'black' }}>
         <SpaceBackground />
-        <Environment preset="night" />
-        <ambientLight intensity={0.1} />
+        <AnimatedCamera />
+        <ambientLight intensity={0.3} />
       </Canvas>
       <ContactForm />
     </div>
