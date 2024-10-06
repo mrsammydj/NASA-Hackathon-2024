@@ -31,7 +31,7 @@ To get started with the Interactive Orrery, follow these steps:
 
 1. **Clone the Repository**:
     ```bash
-    git clone https://github.com/yourusername/interactive-orrery.git
+    git clone https://github.com/mrsammydj/NASA-Hackathon-2024.git
     ```
 2. **Navigate to the Project Directory**:
     ```bash
