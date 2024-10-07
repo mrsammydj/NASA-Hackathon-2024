@@ -25,7 +25,7 @@ import SpaceDebrisCleanup from '@/components/SpaceDebrisCleanup'
 import cometsData from './cometsData.json'
 import asteroidsData from './asteroidsData.json'
 import phaData from './phaData.json'
-
+import ScrollHeader from '@/components/ScrollHeader';
 
 // eslint-disable-next-line prefer-const
 let celestialBodies = {
@@ -202,21 +202,21 @@ let celestialBodies = {
     },
   ],
   comets: [
-    // {
-    //   name: "Halley's Comet",
-    //   eccentricity: 0.96714,
-    //   sma: 17.8341 * 3.5,
-    //   inclination: 162.262,
-    //   raan: 58.42,
-    //   argPerihelion: 111.33,
-    //   color: "#87CEEB",
-    //   orbitPeriod: 27510.75,
-    //   type: "comet",
-    //   description: "Halley's Comet is a short-period comet visible from Earth every 75-76 years.",
-    //   tail: true,
-    //   rotationPeriod: 0,
-    //   scale: [0.01, 0.01, 0.01] as [number, number, number]
-    // },
+     {
+      name: "Halley's Comet",
+      eccentricity: 0.96714,
+      sma: 17.8341 * 3.5,
+      inclination: 162.262,
+      raan: 58.42,
+      argPerihelion: 111.33,
+      color: "#87CEEB",
+      orbitPeriod: 27510.75,
+      type: "comet",
+      description: "Halley's Comet is a short-period comet visible from Earth every 75-76 years.",
+      tail: true,
+      rotationPeriod: 0,
+      scale: [0.01, 0.01, 0.01] as [number, number, number]
+    },
     {"type": "comet", "name": "1P/Halley", "description": "", "tail": false, "rotationPeriod": 0, "sma": 17.832989055749998, "eccentricity": 0.9671429085, "inclination": 162.2626906, "raan": 58.42008098, "argPerihelion": 111.3324851, "orbitPeriod": 27491.8}
   ],
   pha: [
@@ -356,6 +356,7 @@ function CelestialBody({ body, time, setSelectedBody, paused, speed }: Celestial
 
       return <primitive object={scene} />;
     } else {
+      
       // Adjust the sphere size and material for better visibility
       const sphereRadius = type === "planet" ? 0.5 : 0.2; // Smaller radius for non-planets
       return (
@@ -550,7 +551,7 @@ function Player({ isCameraManual, orbitControlsRef }: { isCameraManual: boolean,
     }
 
     if (cameraState) {
-      const cameraOffset = new THREE.Vector3(1, 5, 0); // Distance behind and above the spaceship
+      const cameraOffset = new THREE.Vector3(0, 0, 0); // Distance behind and above the spaceship
       const desiredCameraPos = playerRef.current.position.clone().add(cameraOffset.applyQuaternion(playerRef.current.quaternion));
 
       cameraRef.current.position.lerp(desiredCameraPos, 0.1); 
@@ -831,7 +832,8 @@ export default function SpaceEducationOrrery() {
 
   return (
     <div className="text-white bg-gradient-to-b from-gray-900 to-black">
-
+      {/* Add the ScrollHeader component here */}
+      <ScrollHeader />
      
 
       {/* Interactive Orrery Section */}
@@ -862,3 +864,4 @@ export default function SpaceEducationOrrery() {
     </div>
   )
 }
+

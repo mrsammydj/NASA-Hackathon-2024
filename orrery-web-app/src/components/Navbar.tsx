@@ -20,6 +20,7 @@ const navItems = [
   { name: "Learn", path: "/learn" },
   { name: "About", path: "/about" },
   { name: "Contact", path: "/contact" },
+  { name: "Game", path: "https://nasa-hackathon-2024-game.vercel.app/" },
 ]
 
 export default function Navbar() {

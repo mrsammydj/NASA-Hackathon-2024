@@ -60,12 +60,12 @@ export default function SpaceDebrisCleanup() {
     }
   }, [gameActive, timeLeft, endGame])
 
-  useEffect(() => {
-    if (gameActive) {
-      const interval = setInterval(spawnSpaceObject, 1000)
-      return () => clearInterval(interval)
-    }
-  }, [gameActive])
+useEffect(() => {
+  if (gameActive) {
+    const interval = setInterval(spawnSpaceObject, 1000);
+    return () => clearInterval(interval);
+  }
+}, [gameActive]); 
 
   const startGame = () => {
     setGameActive(true)

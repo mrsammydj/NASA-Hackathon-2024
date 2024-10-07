@@ -126,11 +126,13 @@ export default function Footer() {
           <div className="space-y-6">
             <h4 className="text-2xl font-bold">Explore Our Universe</h4>
             <ul className="space-y-4 text-lg">
-              {["Home", "About", "Explore", "Learn", "Contact"].map((item) => (
-                <li key={item}>
-                  <Link 
-                    href={`/${item.toLowerCase()}`} 
-                    className="hover:text-blue-400 transition-colors font-medium relative group"
+            {["Home", "About", "Explore", "Learn", "Contact", "Game"].map((item) => (
+            <li key={item}>
+              <Link 
+                href={item === "Home" ? "/" : item === "Game" ? "https://nasa-hackathon-2024-game.vercel.app/" : `/${item.toLowerCase()}`}
+                className="hover:text-blue-400 transition-colors font-medium relative group"
+                target={item === "Game" ? "_blank" : undefined}  // Open Game link in new tab
+                rel={item === "Game" ? "noopener noreferrer" : undefined}  // Security best practice for external links
                   >
                     {item}
                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-400 transition-all group-hover:w-full"></span>

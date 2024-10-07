@@ -12,10 +12,11 @@ export default function AboutPage() {
   const controls = useAnimation()
 
   const teamMembers = [
-    { name: "Samuel Baxter", role: "Full Stack Developer", image: "/placeholder.svg?height=100&width=100" },
-    { name: "Muhammad Hassaan Shaukat", role: "Full Stack Developer", image: "/placeholder.svg?height=100&width=100" },
-    { name: "Abrar Fairuj Raiyan", role: "Full Stack Developer", image: "/placeholder.svg?height=100&width=100" },
-    { name: "Leck Kye-Cin", role: "Game Developer", image: "/placeholder.svg?height=100&width=100" },
+    { name: "Samuel Baxter", role: "Full Stack Developer", image: "/images/planet1.png" },
+    { name: "Muhammad Hassaan Shaukat", role: "Full Stack Developer", image: "/images/planet2.png" },
+    { name: "Abrar Fairuj Raiyan", role: "Full Stack Developer", image: "/images/planet3.png" },
+    { name: "Arda Kaçar", role: "Full Stack Developer", image: "/images/planet4.png" },
+    { name: "Leck Kye-Cin", role: "Game Developer", image: "/images/planet5.png" },
   ]
 
   useEffect(() => {
@@ -160,7 +161,7 @@ export default function AboutPage() {
                   </li>
                   <li className="flex items-center">
                     <span className="text-purple-400 mr-2">✦</span>
-                    Virtual space missions and quizzes
+                    Virtual space missions
                   </li>
                 </ul>
               </CardContent>
