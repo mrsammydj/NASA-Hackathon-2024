@@ -24,6 +24,8 @@ This project leverages a **modern tech stack** to create an immersive and intera
 - **TypeScript**: Provides type safety and better code quality during development.
 - **TailwindCSS**: Utilized for rapid and clean styling, making our web interface responsive and visually appealing.
 - **Shadcn UI**: A component library used for creating intuitive and modern UI elements.
+- **Pandas**: A powerful data manipulation and analysis library for Python, used to handle and process large datasets effectively.
+- **Plotly**: A versatile library for creating interactive plots and visualizations, allowing for an engaging presentation of asteroid data analysis, which enhances the user experience within the web application.
 
 ## 📜 Installation Guide
 
@@ -53,7 +55,7 @@ To get started with the Interactive Orrery, follow these steps:
 - Muhammad Hassaan Shaukat - [@muhammad_.224](https://github.com/muhammad-hassaan-y2)
 - Abrar Fairuj Raiyan - [@abrar06](https://github.com/MadCoderme)
 - Leck Kye-Cin - [@kcl17](https://github.com/algorathem).
-- Exxilon - [@ardakacar](https://github.com/ardakacar).
+- Arda Kacar - [@ardakacar](https://github.com/ardakacar).
 
 ## 🎮 How to Use
 
